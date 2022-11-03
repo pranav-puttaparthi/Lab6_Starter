@@ -24,6 +24,8 @@ function getRecipesFromStorage() {
   // A9. TODO - Complete the functionality as described in this function
   //           header. It is possible in only a single line, but should
   //           be no more than a few lines.
+  return localStorage.getItem('recipes') != null && JSON.parse(localStorage.getItem('recipes')) != null
+    ? JSON.parse(localStorage.getItem('recipes')) : [];
 }
 
 /**
@@ -34,6 +36,14 @@ function getRecipesFromStorage() {
  * @param {Array<Object>} recipes An array of recipes
  */
 function addRecipesToDocument(recipes) {
+  const mainElement = document.querySelector('main');
+
+  for (let recipe in recipes) {
+    let newRecipeCard = document.createElement('recipe-card');
+    newRecipeCard.data = (recipes[recipe]);
+    mainElement.appendChild(newRecipeCard);
+  }
+
   // A10. TODO - Get a reference to the <main> element
   // A11. TODO - Loop through each of the recipes in the passed in array,
   //            create a <recipe-card> element for each one, and populate
@@ -51,6 +61,7 @@ function saveRecipesToStorage(recipes) {
   // B1. TODO - Complete the functionality as described in this function
   //            header. It is possible in only a single line, but should
   //            be no more than a few lines.
+  localStorage.setItem('recipes', JSON.stringify(recipes));
 }
 
 /**
@@ -60,7 +71,41 @@ function saveRecipesToStorage(recipes) {
 function initFormHandler() {
 
   // B2. TODO - Get a reference to the <form> element
-  
+  const formSelector = document.getElementById('new-recipe');
+  const buttonEvent = document.querySelector('[type = "submit"]');
+  const clearLocalStorageEvents = document.getElementsByClassName('danger');
+  const clearLocalStorageEvent = clearLocalStorageEvents[0];
+  const mainElement = document.querySelector('main');
+  let newRecipes = [];
+
+  buttonEvent.addEventListener("click", (event) => {
+    const formData = new FormData(formSelector);
+    const recipeObject = {
+      "imgSrc": formData.get('imgSrc'),
+      "imgAlt": formData.get('imgAlt'),
+      "titleLnk": formData.get('titleLnk'),
+      "titleTxt": formData.get('titleTxt'),
+      "organization": formData.get('organization'),
+      "rating": formData.get('rating'),
+      "numRatings": formData.get('numRatings'),
+      "lengthTime": formData.get('lengthTime'),
+      "ingredients": formData.get('ingredients')
+    };
+    let newRecipeCard = document.createElement('recipe-card');
+    newRecipeCard.data = recipeObject;
+    mainElement.appendChild(newRecipeCard);
+    newRecipes = getRecipesFromStorage();
+    newRecipes.push(recipeObject);
+    saveRecipesToStorage(newRecipes);
+  });
+
+  clearLocalStorageEvent.addEventListener("click", (event) => {
+    localStorage.clear();
+    while (mainElement.children.length > 0) {
+      mainElement.removeChild(mainElement.lastElementChild);
+    }
+  });
+
   // B3. TODO - Add an event listener for the 'submit' event, which fires when the
   //            submit button is clicked
 
